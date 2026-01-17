@@ -1,8 +1,13 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    // 1. Product Management
+    Route::apiResource('products', ProductController::class);
+
+    // 2. Inventory Management (Stock Opname)
+    Route::post('/inventory/adjust', [InventoryController::class, 'adjust']);
+});
