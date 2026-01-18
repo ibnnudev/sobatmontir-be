@@ -16,5 +16,8 @@ return [
         'queue.call',
         'transaction.create',
         'sos.accept',
+        'shift.open',
+        'shift.close',
+        'shift.view',
     ],
 ];
