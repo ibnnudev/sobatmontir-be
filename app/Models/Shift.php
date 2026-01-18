@@ -4,14 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Shift extends Model
 {
-    use HasUuids;
+    const STATUS_OPEN = 'OPEN';
+    const STATUS_CLOSED = 'CLOSED';
+
+    use HasUuids, HasFactory;
 
     protected $guarded = ['id'];
 
-    protected $casts = ['opened_at' => 'datetime', 'closed_at' => 'datetime'];
+    protected $casts = [
+        'opened_at' => 'datetime',
+        'closed_at' => 'datetime'
+    ];
 
     public function cashier()
     {
