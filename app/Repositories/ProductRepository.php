@@ -9,16 +9,17 @@ class ProductRepository
     public function getByWorkshopId($workshopId, $filters = [], $limit = 10)
     {
         $query = Product::where('workshop_id', $workshopId);
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where('name', 'like', "%{$filters['search']}%");
         }
-        if (!empty($filters['low_stock'])) {
+        if (! empty($filters['low_stock'])) {
             $query->lowStock();
         }
         if (isset($filters['is_active'])) {
             $query->where('is_active', $filters['is_active']);
         }
         $query->latest();
+
         return $query->paginate($limit);
     }
 
@@ -35,6 +36,7 @@ class ProductRepository
     public function updateStock(Product $product, int $realQty)
     {
         $product->update(['stock' => $realQty]);
+
         return $product;
     }
 }

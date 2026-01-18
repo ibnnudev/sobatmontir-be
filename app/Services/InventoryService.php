@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\Product;
-use App\Repositories\ProductRepository;
 use App\Models\StockAdjustment;
 use App\Models\StockMovement;
+use App\Repositories\ProductRepository;
 use DB;
 use Exception;
 
@@ -17,6 +17,7 @@ class InventoryService
     {
         $this->productRepository = $productRepository;
     }
+
     /**
      * Hanle Create Product dengan Logic Service/Barang
      */
@@ -31,7 +32,7 @@ class InventoryService
                 ...$data,
                 'workshop_id' => $workshopId,
             ]);
-            if (!$product->is_service && $product->stock > 0) {
+            if (! $product->is_service && $product->stock > 0) {
                 StockMovement::create([
                     'product_id' => $product->id,
                     'movement_type' => StockMovement::MOVEMENT_TYPE_ADJUSTMENT,
@@ -39,6 +40,7 @@ class InventoryService
                     'reason' => 'Stok Awal (Initial Balance)',
                 ]);
             }
+
             return $product;
         });
     }
@@ -71,8 +73,9 @@ class InventoryService
                 'product_id' => $product->id,
                 'movement_type' => StockMovement::MOVEMENT_TYPE_ADJUSTMENT,
                 'qty_change' => $qtyDiff,
-                'reason' => 'Stock Opname: ' . $reason,
+                'reason' => 'Stock Opname: '.$reason,
             ]);
+
             return $product;
         });
     }

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InventoryAdjustRequest;
+use App\Http\Responses\ApiResponse;
 use App\Models\Product;
 use App\Services\InventoryService;
-use App\Http\Responses\ApiResponse;
-use Illuminate\Http\Request;
-use App\Http\Requests\InventoryAdjustRequest;
 use Illuminate\Support\Facades\Gate;
 
 class InventoryController extends Controller
@@ -32,6 +31,7 @@ class InventoryController extends Controller
                 $request->user()->id,
                 $request->reason
             );
+
             return ApiResponse::success([
                 'current_stock' => $updatedProduct->stock,
             ], 'Stok berhasil disesuaikan');

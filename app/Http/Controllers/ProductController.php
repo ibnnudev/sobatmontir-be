@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductDestroyRequest;
-use App\Models\Product;
-use App\Services\InventoryService;
-use App\Repositories\ProductRepository;
-use App\Http\Responses\ApiResponse;
-use Illuminate\Http\Request;
 use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Http\Responses\ApiResponse;
+use App\Models\Product;
+use App\Repositories\ProductRepository;
+use App\Services\InventoryService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
     protected $inventoryService;
+
     protected $productRepository;
 
     public function __construct(InventoryService $inventoryService, ProductRepository $productRepository)
@@ -27,7 +28,7 @@ class ProductController extends Controller
     {
         $user = $request->user();
         $workshopId = $user->ownedWorkshops->first()->id ?? null;
-        if (!$workshopId) {
+        if (! $workshopId) {
             return ApiResponse::error('User tidak memiliki bengkel aktif.', 403);
         }
         $filters = [
@@ -37,6 +38,7 @@ class ProductController extends Controller
         ];
         $limit = $request->input('limit', 10);
         $products = $this->productRepository->getByWorkshopId($workshopId, $filters, $limit);
+
         return ApiResponse::success($products);
     }
 
@@ -45,6 +47,7 @@ class ProductController extends Controller
         Gate::authorize('create', Product::class);
         $workshopId = $request->user()->ownedWorkshops->first()->id;
         $product = $this->inventoryService->createProduct($request->all(), $workshopId);
+
         return ApiResponse::success($product, 'Produk berhasil dibuat.', 201);
     }
 
@@ -58,6 +61,7 @@ class ProductController extends Controller
         Gate::authorize('update', $product);
         $data = $request->except(['stock', 'workshop_id']);
         $product->update($data);
+
         return ApiResponse::success($product, 'Data produk diperbarui (Stok tidak berubah)');
     }
 
@@ -73,6 +77,7 @@ class ProductController extends Controller
             return ApiResponse::error('Gagal hapus! Produk ini sudah memiliki riwayat transaksi atau stok. Silakan non-aktifkan saja (is_active=false) jika tidak ingin dijual.', 422);
         }
         $product->delete();
+
         return ApiResponse::success(null, 'Produk berhasil dihapus permanen');
     }
 
@@ -84,8 +89,9 @@ class ProductController extends Controller
         $product = Product::with([
             'stockMovements' => function ($query) {
                 $query->latest()->limit(10);
-            }
+            },
         ])->findOrFail($id);
+
         // Optionally: Gate::authorize('view', $product);
         return ApiResponse::success($product);
     }
