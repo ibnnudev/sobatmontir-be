@@ -65,13 +65,15 @@ class ShiftService
                 'status' => Shift::STATUS_CLOSED,
                 'closed_at' => now(),
             ]);
+
+            return $shift;
         });
     }
 
     /**
      * Dapatkan Laporan Ringkas Shift (Breakdown Payment)
      */
-    public function getShiftSummary(Shift $shift)
+    public function getShiftSummary($shift)
     {
         $paymentSummary = $shift->transactions()
             ->select('payment_method', DB::raw('SUM(total) as total_amount'), DB::raw('COUNT(*) as count'))

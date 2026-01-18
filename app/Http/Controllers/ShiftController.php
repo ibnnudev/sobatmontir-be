@@ -72,7 +72,7 @@ class ShiftController extends Controller
         ]);
         try {
             $shift = $this->shiftService->closeShift($request->user(), $request->closing_cash);
-            $summary = $this->shiftService->getShiftSummary($shift->id);
+            $summary = $this->shiftService->getShiftSummary($shift);
             return response()->json([
                 'message' => 'Shift berhasil ditutup.',
                 'summary' => $summary,
