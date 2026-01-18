@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Services\InventoryService;
+use App\Http\Responses\ApiResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\InventoryAdjustRequest;
 use Illuminate\Support\Facades\Gate;
 
 class InventoryController extends Controller
@@ -19,19 +21,10 @@ class InventoryController extends Controller
     /**
      * API: POST /api/inventory/adjust
      */
-    public function adjust(Request $request)
+    public function adjust(InventoryAdjustRequest $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'real_qty' => 'required|integer|min:0',
-            'reason' => 'required|string|min:5',
-        ]);
-
         $product = Product::findOrFail($request->product_id);
-
-        // Gunakan Policy: Hanya Owner yang boleh adjust stok
         Gate::authorize('update', $product);
-
         try {
             $updatedProduct = $this->inventoryService->adjustStock(
                 $request->product_id,
@@ -39,13 +32,11 @@ class InventoryController extends Controller
                 $request->user()->id,
                 $request->reason
             );
-
-            return response()->json([
-                'message' => 'Stok berhasil disesuaikan',
+            return ApiResponse::success([
                 'current_stock' => $updatedProduct->stock,
-            ]);
+            ], 'Stok berhasil disesuaikan');
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            return ApiResponse::error($e->getMessage(), 400);
         }
     }
 }
