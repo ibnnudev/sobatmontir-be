@@ -12,8 +12,6 @@ class InventoryService
 {
     /**
      * Hanle Create Product dengan Logic Service/Barang
-     * @param array $data
-     * @param string $workshopId
      */
     public function createProduct(array $data, string $workshopId)
     {
@@ -31,7 +29,7 @@ class InventoryService
             ]);
 
             // 3. Jika Barang Fisik & Ada Stok Awal > 0, catat sebagai Initial Balance
-            if (!$product->is_service && $product->stock > 0) {
+            if (! $product->is_service && $product->stock > 0) {
                 StockMovement::create([
                     'product_id' => $product->id,
                     'movement_type' => StockMovement::MOVEMENT_TYPE_ADJUSTMENT,
@@ -44,10 +42,6 @@ class InventoryService
 
     /**
      * Handle Stock Opname (Penyesuaian Stok Manual)
-     * @param string $productId
-     * @param int $realQty
-     * @param string $userId
-     * @param string $reason
      */
     public function adjustStock(string $productId, int $realQty, string $userId, string $reason)
     {
@@ -84,8 +78,10 @@ class InventoryService
                 'product_id' => $product->id,
                 'movement_type' => StockMovement::MOVEMENT_TYPE_ADJUSTMENT,
                 'qty_change' => $qtyDiff, // Bisa positif atau negatif
-                'reason' => 'Stock Opname: ' . $reason,
+                'reason' => 'Stock Opname: '.$reason,
             ]);
+
+            return $product;
         });
     }
 }

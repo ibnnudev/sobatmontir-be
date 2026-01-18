@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockAdjustment extends Model
@@ -28,6 +28,9 @@ class StockAdjustment extends Model
         'qty_after' => 'integer',
         'approved_at' => 'datetime',
     ];
+
+    // timestamps di-nonaktifkan jika tidak ada updated_at
+    public $timestamps = false;
 
     /**
      * Produk yang disesuaikan.

@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockMovement extends Model
 {
     const MOVEMENT_TYPE_SALE = 'sale';
+
     const MOVEMENT_TYPE_ADJUSTMENT = 'adjustment';
 
     use HasFactory, HasUuids;
@@ -21,6 +22,11 @@ class StockMovement extends Model
         'qty_change',     // Bisa negatif (keluar) atau positif (masuk)
         'reason',
     ];
+
+    // timestamps hanya created_at
+    public $timestamps = ['created_at'];
+
+    const UPDATED_AT = null;
 
     protected $casts = [
         'qty_change' => 'integer',

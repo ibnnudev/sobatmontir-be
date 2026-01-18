@@ -18,15 +18,48 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $workshopId = $request->user()->ownedWorkshops->first()->id;
-        $query = Product::where('workshop_id', $workshopId);
+        // 1. Ambil Workshop ID dari User yang login
+        // (Asumsi: User adalah Owner yang punya workshop)
+        $user = $request->user();
+        $workshopId = $user->ownedWorkshops->first()->id ?? null;
 
-        // Filter Low Stock
-        if ($request->has('low_stock')) {
-            $query->lowStock();
+        if (!$workshopId) {
+            return response()->json(['message' => 'User tidak memiliki bengkel aktif.'], 403);
         }
 
-        return response()->json($query->paginate(20));
+        // 2. Mulai Query
+        $query = Product::where('workshop_id', $workshopId);
+
+        // --- FILTER 1: Pencarian Nama (Search) ---
+        // Contoh: ?search=Oli
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // --- FILTER 2: Low Stock (Peringatan Stok) ---
+        // Contoh: ?low_stock=1
+        if ($request->filled('low_stock') && $request->low_stock == '1') {
+            $query->lowStock(); // Memanggil Scope yang sudah kita buat di Model
+        }
+
+        // --- FILTER 3: Status Aktif ---
+        // Contoh: ?is_active=1 (Hanya yang aktif untuk POS)
+        // Contoh: ?is_active=0 (Hanya yang non-aktif/soft deleted untuk Gudang)
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        // --- SORTING ---
+        // Urutkan dari yang terbaru dibuat
+        $query->latest(); 
+        
+        // --- PAGINATION ---
+        // Gunakan pagination biar ringan kalau datanya ribuan
+        // Default 10 item per halaman, atau bisa diatur via ?limit=50
+        $limit = $request->input('limit', 10);
+        
+        return response()->json($query->paginate($limit));
     }
 
     public function store(Request $request)
@@ -65,6 +98,7 @@ class ProductController extends Controller
             'name' => 'sometimes|string',
             'price' => 'sometimes|numeric|min:0',
             'min_stock' => 'sometimes|integer|min:0',
+            'is_active' => 'sometimes|boolean',
             // Kita TIDAK memvalidasi 'stock' disini agar user tidak bisa input
         ]);
 

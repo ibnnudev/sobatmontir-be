@@ -4,10 +4,23 @@ namespace App\Policies;
 
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProductPolicy
 {
+    /**
+     * Determine whether the user can create products.
+     */
+    public function create(User $user): bool
+    {
+        // Cek apakah user punya permission untuk membuat produk
+        if (! $user->hasPermissionTo('inventory.manage')) {
+            return false;
+        }
+
+        // User boleh membuat produk hanya jika dia memiliki bengkel
+        return $user->ownedWorkshops()->exists();
+    }
+
     /**
      * Determine whether the user can update the product (Edit Harga/Stok).
      */
@@ -15,7 +28,7 @@ class ProductPolicy
     {
         // 1. Cek Permission Global dulu (via Spatie)
         // Apakah user punya hak akses "price.edit" ATAU "inventory.manage"?
-        if (!$user->hasAnyPermission(['price.edit', 'inventory.manage'])) {
+        if (! $user->hasAnyPermission(['price.edit', 'inventory.manage'])) {
             return false;
         }
 
@@ -31,7 +44,7 @@ class ProductPolicy
     public function delete(User $user, Product $product): bool
     {
         // Sama logika-nya, hanya owner bengkel yang boleh hapus produk
-        if (!$user->hasPermissionTo('inventory.manage')) {
+        if (! $user->hasPermissionTo('inventory.manage')) {
             return false;
         }
 

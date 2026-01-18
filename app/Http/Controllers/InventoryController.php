@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use Illuminate\Support\Facades\Gate;
 
 class InventoryController extends Controller
@@ -42,7 +42,7 @@ class InventoryController extends Controller
 
             return response()->json([
                 'message' => 'Stok berhasil disesuaikan',
-                'current_stock' => $updatedProduct->stock
+                'current_stock' => $updatedProduct->stock,
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
