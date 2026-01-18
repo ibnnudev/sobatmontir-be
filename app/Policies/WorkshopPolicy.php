@@ -22,7 +22,7 @@ class WorkshopPolicy
     public function viewReport(User $user, Workshop $workshop): bool
     {
         // Cek Permission Spatie
-        if (!$user->can('finance.view_report')) {
+        if (! $user->can('finance.view_report')) {
             return false;
         }
 

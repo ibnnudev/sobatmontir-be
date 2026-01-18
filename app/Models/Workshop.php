@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class Workshop extends Model
 {
@@ -33,14 +33,17 @@ class Workshop extends Model
     {
         return $this->hasMany(WorkshopService::class);
     }
+
     public function products()
     {
         return $this->hasMany(Product::class);
     }
+
     public function shifts()
     {
         return $this->hasMany(Shift::class);
     }
+
     public function queues()
     {
         return $this->hasMany(Queue::class);

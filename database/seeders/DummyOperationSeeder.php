@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class DummyOperationSeeder extends Seeder
 {
@@ -90,7 +90,7 @@ class DummyOperationSeeder extends Seeder
                 'qty' => $qtyJasa,
                 'price' => $jasaGanti->price,
                 'subtotal' => $jasaGanti->price * $qtyJasa,
-            ]
+            ],
         ]);
 
         // Payment Log
