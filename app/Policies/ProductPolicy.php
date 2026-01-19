@@ -13,7 +13,7 @@ class ProductPolicy
     public function create(User $user): bool
     {
         // Cek apakah user punya permission untuk membuat produk
-        if (! $user->hasPermissionTo('inventory.manage')) {
+        if (!$user->hasPermissionTo('manage_products')) {
             return false;
         }
 
@@ -27,8 +27,8 @@ class ProductPolicy
     public function update(User $user, Product $product): bool
     {
         // 1. Cek Permission Global dulu (via Spatie)
-        // Apakah user punya hak akses "price.edit" ATAU "inventory.manage"?
-        if (! $user->hasAnyPermission(['price.edit', 'inventory.manage'])) {
+        // Apakah user punya hak akses "price.edit" ATAU "manage_products"?
+        if (!$user->hasAnyPermission(['price.edit', 'manage_products'])) {
             return false;
         }
 
@@ -44,7 +44,7 @@ class ProductPolicy
     public function delete(User $user, Product $product): bool
     {
         // Sama logika-nya, hanya owner bengkel yang boleh hapus produk
-        if (! $user->hasPermissionTo('inventory.manage')) {
+        if (!$user->hasPermissionTo('manage_products')) {
             return false;
         }
 
