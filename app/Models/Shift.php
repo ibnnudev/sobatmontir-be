@@ -29,4 +29,9 @@ class Shift extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function workshop()
+    {
+        return $this->belongsTo(Workshop::class);
+    }
 }
