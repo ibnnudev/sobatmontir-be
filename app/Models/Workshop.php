@@ -49,4 +49,25 @@ class Workshop extends Model
     {
         return $this->hasMany(Queue::class);
     }
+
+    // Scopes
+    /**
+     * Scope untuk mencari workshop mobile di sekitar lokasi user (Radius km)
+     */
+    public function scopeNearby($query, $lat, $lng, $radius = 3)
+    {
+        // Rumus Haversine (Hitung jarak bola bumi)
+        $haversine = "(6371 * acos(cos(radians($lat)) 
+                     * cos(radians(latitude)) 
+                     * cos(radians(longitude) - radians($lng)) 
+                     + sin(radians($lat)) 
+                     * sin(radians(latitude))))";
+
+        return $query->select('*') // Ambil semua kolom
+            ->selectRaw("{$haversine} AS distance") // Tambah kolom virtual 'distance'
+            ->where('is_open', true) // Bengkel harus buka
+            ->where('is_mobile_service_enabled', true) // Harus terima panggilan
+            ->having('distance', '<=', $radius) // Filter radius
+            ->orderBy('distance', 'asc'); // Urutkan dari yang terdekat
+    }
 }

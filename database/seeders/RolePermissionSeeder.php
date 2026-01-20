@@ -19,6 +19,12 @@ class RolePermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
+        // SOS Feature: Ensure new permissions exist
+        $sosPermissions = ['sos.create', 'sos.accept', 'sos.view', 'sos.update', 'sos.cancel'];
+        foreach ($sosPermissions as $perm) {
+            Permission::firstOrCreate(['name' => $perm]);
+        }
+
         // 3. Definisi Roles & Assignment dari config
         $rolesConfig = config('roles.roles');
         $rolePermissions = config('roles.permissions');

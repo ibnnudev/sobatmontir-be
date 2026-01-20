@@ -47,4 +47,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    public function serviceRequest()
+    {
+        return $this->hasMany(ServiceRequest::class, 'customer_id');
+    }
 }
