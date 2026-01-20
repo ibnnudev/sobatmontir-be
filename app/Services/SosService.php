@@ -11,7 +11,7 @@ use Exception;
 class SosService
 {
     /**
-     * User membuat Request SOS 
+     * User membuat Request SOS
      */
     public function createRequest($user, array $data)
     {
@@ -53,7 +53,7 @@ class SosService
         /**
          * Asumsi: Mekanik terikat dengan workshop
          * Sebenarnya mekanik mobile bisa jalan sendiri, tapi di Fase 1 relation di-set via WorkshopMechanic
-         * 
+         *
          * Logic: Tampilkan Request status 'BROADCAST' yang ada di radius 10km dari lokasi mekanik
          * Menggunakan Raw Query untuk perhitungan Haversine di ServiceRequest (Agak berat tapi akurat)
          */
@@ -63,6 +63,7 @@ class SosService
                         * cos(radians(pickup_lng) - radians($lng)) 
                         + sin(radians($lat)) 
                         * sin(radians(pickup_lat))))";
+
         return ServiceRequest::select('*')
             ->selectRaw("$haversine AS distance")
             ->where('status', 'BROADCAST')
@@ -81,15 +82,18 @@ class SosService
             // Lock Row (prevent Race Condition)
             $request = ServiceRequest::lockForUpdate()->find($requestId);
 
-            if (!$request)
+            if (! $request) {
                 throw new Exception('Order tidak ditemukan');
-            if ($request->status !== 'BROADCAST')
+            }
+            if ($request->status !== 'BROADCAST') {
                 throw new Exception('Order ini sudah diambil oleh mekanik lain atau dibatalkan');
+            }
 
             // Ambil Workshop ID dari Mekanik
             $workshopMechanic = $mechanicUser->mechanicProfile;
-            if (!$workshopMechanic)
+            if (! $workshopMechanic) {
                 throw new Exception('Akun Anda tidak terdaftar sebagai mekanik');
+            }
 
             // Update Status Request
             $request->update([
@@ -121,7 +125,7 @@ class SosService
             ->where('mechanic_id', $mechanicUser->id)
             ->exists();
 
-        if (!$isMyJob) {
+        if (! $isMyJob) {
             throw new Exception('Anda tidak memiliki akses ke order ini');
         }
 
@@ -129,6 +133,7 @@ class SosService
         // (ACCEPTED -> ON_THE_WAY -> ARRIVED -> PROCESSING -> DONE)
         // Logika sederhana: langsung update aja
         $request->update(['status' => $status]);
+
         return $request;
     }
 }

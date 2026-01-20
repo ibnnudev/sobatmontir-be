@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Models\Shift;
 use App\Policies\ShiftPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {

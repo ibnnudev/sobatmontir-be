@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceRequest extends Model
 {
-    use HasUuids, HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'customer_id',
@@ -17,7 +17,7 @@ class ServiceRequest extends Model
         'pickup_lat',
         'pickup_lng',
         'status', // BROADCAST, ACCEPTED, ON_THE_WAY, ARRIVED, PROCESSING, DONE, CANCELLED
-        'cancellation_reason'
+        'cancellation_reason',
     ];
 
     protected $casts = [

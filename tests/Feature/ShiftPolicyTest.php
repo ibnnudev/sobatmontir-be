@@ -65,7 +65,7 @@ class ShiftPolicyTest extends TestCase
         $shift = Shift::factory()->create([
             'cashier_id' => $user->id,
             'workshop_id' => $workshop->id,
-            'status' => Shift::STATUS_OPEN
+            'status' => Shift::STATUS_OPEN,
         ]);
 
         // When & Then
@@ -84,7 +84,7 @@ class ShiftPolicyTest extends TestCase
         $shift = Shift::factory()->create([
             'cashier_id' => $user->id,
             'workshop_id' => $workshop->id,
-            'status' => Shift::STATUS_OPEN
+            'status' => Shift::STATUS_OPEN,
         ]);
 
         // When & Then

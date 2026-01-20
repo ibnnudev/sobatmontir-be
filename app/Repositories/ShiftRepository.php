@@ -21,6 +21,7 @@ class ShiftRepository
     public function update(Shift $shift, array $data)
     {
         $shift->update($data);
+
         return $shift;
     }
 }

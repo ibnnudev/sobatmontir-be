@@ -8,13 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     const PAYMENT_METHOD_CASH = 'CASH';
+
     const PAYMENT_METHOD_CARD = 'CARD';
+
     const PAYMENT_METHOD_QRIS = 'QRIS';
 
     const STATUS_PENDING = 'PENDING';
-    const STATUS_PAID = 'PAID';
-    const STATUS_COMPLETED = 'COMPLETED';
 
+    const STATUS_PAID = 'PAID';
+
+    const STATUS_COMPLETED = 'COMPLETED';
 
     use HasUuids;
 

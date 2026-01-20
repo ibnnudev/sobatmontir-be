@@ -15,9 +15,11 @@ class ShiftService
     {
         $this->shiftRepository = $shiftRepository;
     }
+
     /**
      * Buka Shift Baru
-     * @param $user, $amount, $workshopId
+     *
+     * @param  $user,  $amount, $workshopId
      */
     public function openShift($user, $amount, $workshopId)
     {
@@ -25,6 +27,7 @@ class ShiftService
         if ($existingShift) {
             throw new Exception("Anda masih memiliki shift yang terbuka (ID: {$existingShift->id}). Harap tutup shift sebelumnya.");
         }
+
         return $this->shiftRepository->create([
             'workshop_id' => $workshopId,
             'cashier_id' => $user->id,
@@ -37,11 +40,13 @@ class ShiftService
 
     /**
      * Tutup Shift (Rekonsiliasi)
-     * @param $user, $realClosingCash
+     *
+     * @param  $user,  $realClosingCash
      */
     public function closeShift($user, $realClosingCash)
     {
         $shift = $this->shiftRepository->findOpenByCashier($user->id);
+
         return DB::transaction(function () use ($shift, $realClosingCash) {
             $expectedCash = $shift->opening_cash + $shift->cash_in;
             $difference = $realClosingCash - $expectedCash;
@@ -51,6 +56,7 @@ class ShiftService
                 'status' => Shift::STATUS_CLOSED,
                 'closed_at' => now(),
             ]);
+
             return $shift;
         });
     }
@@ -64,6 +70,7 @@ class ShiftService
             ->select('payment_method', DB::raw('SUM(total) as total_amount'), DB::raw('COUNT(*) as count'))
             ->groupBy('payment_method')
             ->get();
+
         return [
             'shift_info' => $shift,
             'expected_cash_in_drawer' => $shift->opening_cash + $shift->cash_in,
