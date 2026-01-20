@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ShiftCloseRequest;
+use App\Http\Requests\ShiftOpenRequest;
+use App\Http\Responses\ApiResponse;
 use App\Models\Shift;
 use App\Services\ShiftService;
-use App\Http\Requests\ShiftOpenRequest;
-use App\Http\Requests\ShiftCloseRequest;
-use Illuminate\Http\Request;
-use App\Http\Responses\ApiResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 
 class ShiftController extends Controller
 {
     use AuthorizesRequests;
+
     protected $shiftService;
 
     public function __construct(ShiftService $shiftService)
@@ -29,11 +30,12 @@ class ShiftController extends Controller
         $this->authorize('open', Shift::class);
         $user = $request->user();
         $workshopId = $user->ownedWorkshops->first()->id ?? $user->mechanicProfile->workshop_id ?? null;
-        if (!$workshopId) {
+        if (! $workshopId) {
             return ApiResponse::error('User tidak terdaftar di bengkel manapun.', 403);
         }
         try {
             $shift = $this->shiftService->openShift($user, $request->opening_cash, $workshopId);
+
             return ApiResponse::success($shift, 'Shift berhasil dibuka.', 201);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 400);
@@ -48,13 +50,14 @@ class ShiftController extends Controller
     {
         $shift = $this->shiftService->getCurrentOpenShift($request->user());
         $this->authorize('view', $shift ?? Shift::class);
-        if (!$shift) {
+        if (! $shift) {
             return ApiResponse::success(['status' => 'CLOSED', 'message' => 'Tidak ada shift aktif.']);
         }
+
         return ApiResponse::success([
             'status' => Shift::STATUS_OPEN,
             'data' => $shift,
-            'current_system_cash' => $shift->opening_cash + $shift->cash_in
+            'current_system_cash' => $shift->opening_cash + $shift->cash_in,
         ]);
     }
 
@@ -68,6 +71,7 @@ class ShiftController extends Controller
         try {
             $shift = $this->shiftService->closeShift($request->user(), $request->closing_cash);
             $summary = $this->shiftService->getShiftSummary($shift);
+
             return ApiResponse::success(['summary' => $summary], 'Shift berhasil ditutup.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return ApiResponse::error('Tidak ada shift aktif untuk ditutup.', 404);
@@ -75,5 +79,4 @@ class ShiftController extends Controller
             return ApiResponse::error($th->getMessage(), 400);
         }
     }
-
 }

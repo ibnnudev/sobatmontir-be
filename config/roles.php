@@ -53,6 +53,8 @@ return [
             'view_jobs',
             'update_jobs',
             'sos.accept',
+            'sos.view',
+            'sos.update',
             'transaction.create',
             'shift.open',
             'shift.close',
@@ -61,10 +63,16 @@ return [
         'customer' => [
             'view_products',
             'create_service_request',
+            'sos.create',
+            'sos.view',
+            'sos.cancel',
         ],
         'consumer' => [
             'view_products',
             'create_service_request',
+            'sos.create',
+            'sos.view',
+            'sos.cancel',
         ],
     ],
 ];

@@ -7,7 +7,7 @@ use App\Models\User;
 
 class ShiftPolicy
 {
-    public function view(User $user, Shift $shift = null)
+    public function view(User $user, ?Shift $shift = null)
     {
         return $user->can('shift.view');
     }
@@ -17,7 +17,7 @@ class ShiftPolicy
         return $user->can('shift.open');
     }
 
-    public function close(User $user, Shift $shift = null)
+    public function close(User $user, ?Shift $shift = null)
     {
         return $user->can('shift.close');
     }

@@ -32,19 +32,20 @@ class TransactionController extends Controller
 
         // Cek Permission
         // User harus punya hak akses membuat transaksi
-        if (!$request->user()->can('transaction.create')) {
+        if (! $request->user()->can('transaction.create')) {
             return response()->json(['message' => 'Unauthorized. Anda tidak memiliki akses kasir.'], 403);
         }
 
         try {
             $result = $this->transactionService->createTransaction($request->user(), $request->all());
+
             return response()->json([
                 'message' => 'Transaksi berhasil dibuat.',
                 'data' => $result,
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Transaksi gagal. ' . $th->getMessage(),
+                'message' => 'Transaksi gagal. '.$th->getMessage(),
             ], 400);
         }
     }
