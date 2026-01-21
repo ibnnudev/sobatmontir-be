@@ -5,6 +5,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\SosController;
+use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,5 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/nearby', [SosController::class, 'nearby']); // Mekanik cari order
         Route::post('/{id}/accept', [SosController::class, 'accept']);
         Route::post('/{id}/status', [SosController::class, 'updateStatus']);
+    });
+
+    // -- TRACKING FEATURE --
+    Route::prefix('tracking')->group(function () {
+        Route::post('/update', [TrackingController::class, 'updateLocation']);
+        Route::get('/{orderId}', [TrackingController::class, 'trackOrder']);
     });
 });
