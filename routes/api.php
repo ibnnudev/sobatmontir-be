@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/nearby', [SosController::class, 'nearby']); // Mekanik cari order
         Route::post('/{id}/accept', [SosController::class, 'accept']);
         Route::post('/{id}/status', [SosController::class, 'updateStatus']);
+        Route::post('/{id}/finalize', [SosController::class, 'finalize']);
     });
 
     // -- TRACKING FEATURE --
