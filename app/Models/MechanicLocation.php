@@ -16,9 +16,8 @@ class MechanicLocation extends Model
         'mechanic_id',
         'latitude',
         'longitude',
-        'updated_at'
+        'updated_at',
     ];
-
 
     protected $casts = [
         'latitude' => 'decimal:8',

@@ -26,6 +26,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->requestSos($request->user(), $request->validated());
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);
@@ -37,6 +38,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->nearby($request->user(), $request->all());
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);
@@ -48,6 +50,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->accept($request->user(), $id);
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);
@@ -59,6 +62,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->updateStatus($request->user(), $id, $request->status);
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);
@@ -70,6 +74,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->myActiveOrder($request->user());
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);
@@ -83,6 +88,7 @@ class SosController extends Controller
     {
         try {
             $result = $this->sosService->finalize($request->user(), $id, $request->all());
+
             return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 500);

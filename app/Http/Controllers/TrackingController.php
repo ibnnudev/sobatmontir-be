@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\TrackingService;
-use App\Repositories\TrackingRepository;
-use App\Http\Requests\TrackingUpdateLocationRequest;
 use App\Http\Requests\TrackingOrderRequest;
+use App\Http\Requests\TrackingUpdateLocationRequest;
 use App\Http\Responses\ApiResponse;
+use App\Repositories\TrackingRepository;
+use App\Services\TrackingService;
 
 class TrackingController extends Controller
 {
     protected $trackingService;
+
     protected $trackingRepository;
 
     public function __construct(TrackingService $trackingService, TrackingRepository $trackingRepository)
@@ -25,6 +26,7 @@ class TrackingController extends Controller
     public function updateLocation(TrackingUpdateLocationRequest $request)
     {
         $this->trackingService->updateMechanicLocation($request->user(), $request->lat, $request->lng);
+
         return ApiResponse::success(null, 'Lokasi diperbarui.');
     }
 
@@ -35,6 +37,7 @@ class TrackingController extends Controller
     {
         try {
             $result = $this->trackingService->getTrackingInfo($request->user(), $orderId);
+
             return ApiResponse::success($result);
         } catch (\Throwable $th) {
             return ApiResponse::error($th->getMessage(), 400);
