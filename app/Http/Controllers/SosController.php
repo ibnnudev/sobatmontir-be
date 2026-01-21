@@ -25,41 +25,35 @@ class SosController extends Controller
     public function requestSos(SosRequest $request)
     {
         try {
-            $data = $this->sosService->createRequest($request->user(), $request->validated());
+            $result = $this->sosService->requestSos($request->user(), $request->validated());
 
-            return ApiResponse::success($data, 'Sinyal SOS disebarkan! Mencari mekanik terdekat...');
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
         } catch (\Throwable $th) {
-            return ApiResponse::error('Gagal membuat permintaan SOS: '.$th->getMessage(), 500);
+            return ApiResponse::error($th->getMessage(), 500);
         }
     }
 
     // [MECANIC] Cek Order di Sekitar (Polling)
     public function nearby(Request $request)
     {
-        $request->validate([
-            'lat' => 'required|numeric',
-            'lng' => 'required|numeric',
-        ]);
-        if (! $request->user()->can('sos.accept')) {
-            return ApiResponse::error('Unauthorized', 403);
-        }
-        $orders = $this->sosService->getNearbyRequests($request->user(), $request->lat, $request->lng);
+        try {
+            $result = $this->sosService->nearby($request->user(), $request->all());
 
-        return ApiResponse::success($orders);
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
+        } catch (\Throwable $th) {
+            return ApiResponse::error($th->getMessage(), 500);
+        }
     }
 
     // [MECHANIC] Terima Order
     public function accept(Request $request, $id)
     {
-        if (! $request->user()->can('sos.accept')) {
-            return ApiResponse::error('Unauthorized', 403);
-        }
         try {
-            $data = $this->sosService->acceptRequest($request->user(), $id);
+            $result = $this->sosService->accept($request->user(), $id);
 
-            return ApiResponse::success($data, 'Order diterima! Segera meluncur.');
-        } catch (\Exception $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
+        } catch (\Throwable $th) {
+            return ApiResponse::error($th->getMessage(), 500);
         }
     }
 
@@ -67,22 +61,37 @@ class SosController extends Controller
     public function updateStatus(SosStatusUpdateRequest $request, $id)
     {
         try {
-            $data = $this->sosService->updateStatus($request->user(), $id, $request->status);
+            $result = $this->sosService->updateStatus($request->user(), $id, $request->status);
 
-            return ApiResponse::success($data, 'Status diperbarui.');
-        } catch (\Exception $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
+        } catch (\Throwable $th) {
+            return ApiResponse::error($th->getMessage(), 500);
         }
     }
 
     // [CUSTOMER] Cek Status Order saya (Polling)
     public function myActiveOrder(Request $request)
     {
-        $order = $this->sosRepository->findActiveByCustomer($request->user()->id);
-        if (! $order) {
-            return ApiResponse::success(null, 'Tidak ada order aktif');
-        }
+        try {
+            $result = $this->sosService->myActiveOrder($request->user());
 
-        return ApiResponse::success($order);
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
+        } catch (\Throwable $th) {
+            return ApiResponse::error($th->getMessage(), 500);
+        }
+    }
+
+    /**
+     * [MECHANIC] Finalisasi & Pembayaran
+     */
+    public function finalize(Request $request, $id)
+    {
+        try {
+            $result = $this->sosService->finalize($request->user(), $id, $request->all());
+
+            return ApiResponse::success($result['data'], $result['message'], $result['code']);
+        } catch (\Throwable $th) {
+            return ApiResponse::error($th->getMessage(), 500);
+        }
     }
 }

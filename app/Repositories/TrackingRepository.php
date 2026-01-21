@@ -14,7 +14,7 @@ class TrackingRepository
             [
                 'latitude' => $lat,
                 'longitude' => $lng,
-                'updated_at' => now()
+                'updated_at' => now(),
             ]
         );
     }

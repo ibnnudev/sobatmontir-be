@@ -19,7 +19,7 @@ class TrackingService
             [
                 'latitude' => $lat,
                 'longitude' => $lng,
-                'updated_at' => now()
+                'updated_at' => now(),
             ]
         );
     }
@@ -38,16 +38,17 @@ class TrackingService
         // Ambil Mekanik yang menangani (ACCEPTED, ON_THE_WAY)
         $mechanic = $order->mechanic;
 
-        if (!$mechanic)
+        if (! $mechanic) {
             throw new Exception('Mekanik belum terassign.');
+        }
 
         // Ambil Lokasi Terkini
         $location = MechanicLocation::where('mechanic_id', $mechanic->id)->first();
-        if (!$location) {
+        if (! $location) {
             return [
                 'status' => 'WAITING_SIGNAL',
                 'message' => 'Mekanik belum mengirim sinyal lokasi',
-                'mechanic' => $mechanic->name
+                'mechanic' => $mechanic->name,
             ];
         }
 
@@ -73,16 +74,16 @@ class TrackingService
                 'phone' => $mechanic->phone,
                 'lat' => $location->latitude,
                 'lng' => $location->longitude,
-                'last_update' => $location->updated_at
+                'last_update' => $location->updated_at,
             ],
             'destination' => [
                 'lat' => $order->pickup_lat,
-                'lng' => $order->pickup_lng
+                'lng' => $order->pickup_lng,
             ],
             'estimation' => [
                 'distance_km' => round($distanceKm, 2),
-                'eta_minutes' => $etaMinutes < 1 ? 1 : $etaMinutes
-            ]
+                'eta_minutes' => $etaMinutes < 1 ? 1 : $etaMinutes,
+            ],
         ];
     }
 
