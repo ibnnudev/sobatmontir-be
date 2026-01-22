@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\QueueTicket;
 use App\Services\QueueService;
+use App\Http\Requests\QueueBookRequest;
+use App\Http\Requests\QueueServeRequest;
+use App\Http\Responses\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -20,8 +23,7 @@ class QueueController extends Controller
     public function checkStatus(Request $request, $workshopId)
     {
         $data = $this->queueService->getTodayQueue($workshopId);
-
-        return response()->json([
+        return ApiResponse::success([
             'status' => $data['queue']->traffic_status,
             'active_queue' => $data['active_count'],
             'wait_time_minutes' => $data['estimated_wait_time'],
@@ -30,98 +32,53 @@ class QueueController extends Controller
     }
 
     // [CUSTOMER] Ambil Antrian
-    public function book(Request $request)
+    public function book(QueueBookRequest $request)
     {
-        $request->validate(['workshop_id' => 'required|exists:workshops,id']);
-
         try {
             $ticket = $this->queueService->bookTicket($request->user(), $request->workshop_id);
-
-            return response()->json(
-                ['message' => 'Antrian berhasil diambil!', 'data' => $ticket],
-                201
-            );
+            return ApiResponse::success($ticket, 'Antrian berhasil diambil!', 201);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Gagal mengambil antrian: '.$th->getMessage(),
-            ], 400);
+            return ApiResponse::error('Gagal mengambil antrian: ' . $th->getMessage(), 400);
         }
     }
 
     // [CUSTOMER] Lihat Tiket Saya Hari Ini
     public function myTicket(Request $request)
     {
-        $ticket = QueueTicket::where('customer_id', $request->user()->id)
-            ->whereDate('created_at', Carbon::today())
-            ->whereIn('status', [
-                QueueTicket::STATUS_WAITING,
-                QueueTicket::STATUS_SERVING,
-            ])
-            ->with('queue')
-            ->latest()
-            ->first();
-
-        if (! $ticket) {
-            return response()->json([
-                'message' => 'Anda tidak memiliki tiket aktif hari ini.',
-            ], 404);
+        $ticket = $this->queueService->getActiveTicketForUser($request->user());
+        if (!$ticket) {
+            return ApiResponse::error('Anda tidak memiliki tiket aktif hari ini.', 404);
         }
-
-        return response()->json(['data' => $ticket]);
+        return ApiResponse::success($ticket);
     }
 
     // [MECHANIC] Scan QR / Panggil Nomor (Start Servis)
-    public function serve(Request $request)
+    public function serve(QueueServeRequest $request)
     {
-        $request->validate(['ticket_code' => 'required']);
-
-        //  Cek Permission
-        if (! $request->user()->can('queue.call')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         try {
             $ticket = $this->queueService->processTicket($request->user(), $request->ticket_code);
-
-            return response()->json(['message' => 'Mulai mengerjakan servis', 'data' => $ticket]);
+            return ApiResponse::success($ticket, 'Mulai mengerjakan servis');
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Gagal memproses tiket: '.$th->getMessage(),
-            ], 400);
+            return ApiResponse::error('Gagal memproses tiket: ' . $th->getMessage(), 400);
         }
     }
 
     // [TV DISPLAY] List Antrian untuk TV Bengkel
     public function display(Request $request, $workshopId)
     {
-        // Ambil tiket yang Waiting dan Serving
-        $tickets = QueueTicket::where('workshop_id', $workshopId)
-            ->whereDate('created_at', Carbon::today())
-            ->whereIn('status', [
-                QueueTicket::STATUS_WAITING,
-                QueueTicket::STATUS_SERVING,
-            ])
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        $currentServing = $tickets->where('status', QueueTicket::STATUS_SERVING)->first();
-        $waitingList = $tickets->where('status', QueueTicket::STATUS_WAITING)->values();
-
-        return response()->json([
-            'now_serving' => $currentServing,
-            'upcoming' => $waitingList,
-        ]);
+        $displayData = $this->queueService->getDisplayQueue($workshopId);
+        return ApiResponse::success($displayData);
     }
 
     public function getMessage($status)
     {
         switch ($status) {
             case \App\Models\Queue::TRAFFIC_STATUS_QUIET:
-                'Langsung dikerjakan! Gas ke bengkel.';
-            case \App\Models\Queue::TRAFFIC_STATUS_NORMAL:
-                'Sedikit antrian, harap bersabar.';
+                return 'Langsung dikerjakan! Gas ke bengkel.';
+            case \App\Models\Queue::TRAFFIC_STATUS_MODERATE:
+                return 'Sedikit antrian, harap bersabar.';
             case \App\Models\Queue::TRAFFIC_STATUS_BUSY:
-                'Banyak antrian, siapkan waktu tunggu.';
+                return 'Banyak antrian, siapkan waktu tunggu.';
             default:
                 return '';
         }

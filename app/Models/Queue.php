@@ -12,7 +12,7 @@ class Queue extends Model
 
     const TRAFFIC_STATUS_QUIET = 'SEPI';
 
-    const TRAFFIC_STATUS_NORMAL = 'SEDANG';
+    const TRAFFIC_STATUS_MODERATE = 'SEDANG';
 
     const TRAFFIC_STATUS_BUSY = 'RAME';
 
