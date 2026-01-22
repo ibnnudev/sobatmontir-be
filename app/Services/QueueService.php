@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Repositories\QueueRepository;
 use App\Models\Queue;
 use App\Models\QueueTicket;
+use App\Repositories\QueueRepository;
 use Carbon\Carbon;
 use DB;
 use Exception;
-
 
 class QueueService
 {
@@ -28,6 +27,7 @@ class QueueService
         $tickets = $this->queueRepository->getDisplayTickets($workshopId);
         $currentServing = $tickets->where('status', QueueTicket::STATUS_SERVING)->first();
         $waitingList = $tickets->where('status', QueueTicket::STATUS_WAITING)->values();
+
         return [
             'now_serving' => $currentServing,
             'upcoming' => $waitingList,
@@ -35,6 +35,7 @@ class QueueService
     }
 
     const AVG_SERVICE_TIME = 20;
+
     protected $queueRepository;
 
     public function __construct(QueueRepository $queueRepository)
@@ -58,6 +59,7 @@ class QueueService
         if ($queue->traffic_status !== $status) {
             $queue->update(['traffic_status' => $status]);
         }
+
         return [
             'queue' => $queue,
             'active_count' => $activeCount,
@@ -79,7 +81,7 @@ class QueueService
             $queue = $queueData['queue'];
             $dailyTotal = $this->queueRepository->countDailyTickets($queue);
             $number = $dailyTotal + 1;
-            $ticketCode = 'A-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+            $ticketCode = 'A-'.str_pad($number, 3, '0', STR_PAD_LEFT);
             $minutesToWait = $queueData['active_count'] * self::AVG_SERVICE_TIME;
             $estimatedServeAt = Carbon::now()->addMinutes($minutesToWait);
             $ticket = $this->queueRepository->createTicket([
@@ -89,9 +91,10 @@ class QueueService
                 'ticket_code' => $ticketCode,
                 'status' => QueueTicket::STATUS_WAITING,
                 'estimated_serve_at' => $estimatedServeAt,
-                'qr_code' => $ticketCode . '-' . $user->id,
+                'qr_code' => $ticketCode.'-'.$user->id,
             ]);
             $this->getTodayQueue($workshopId);
+
             return $ticket;
         });
     }
@@ -102,7 +105,7 @@ class QueueService
     public function processTicket($mechanicUser, $ticketCode)
     {
         $ticket = $this->queueRepository->findTicketByCode($ticketCode);
-        if (!$ticket) {
+        if (! $ticket) {
             throw new Exception('Tiket tidak ditemukan atau status tidak valid (Sudah diproses/Cancel).');
         }
         $ticket->update([
@@ -110,6 +113,7 @@ class QueueService
             'mechanic_id' => $mechanicUser->id,
         ]);
         $this->getTodayQueue($ticket->workshop_id);
+
         return $ticket;
     }
 
@@ -121,6 +125,7 @@ class QueueService
         $ticket = $this->queueRepository->findTicketById($ticketId);
         $ticket->update(['status' => QueueTicket::STATUS_DONE]);
         $this->getTodayQueue($ticket->workshop_id);
+
         return $ticket;
     }
 }

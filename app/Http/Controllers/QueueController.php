@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QueueTicket;
-use App\Services\QueueService;
 use App\Http\Requests\QueueBookRequest;
 use App\Http\Requests\QueueServeRequest;
 use App\Http\Responses\ApiResponse;
-use Carbon\Carbon;
+use App\Services\QueueService;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
@@ -23,6 +21,7 @@ class QueueController extends Controller
     public function checkStatus(Request $request, $workshopId)
     {
         $data = $this->queueService->getTodayQueue($workshopId);
+
         return ApiResponse::success([
             'status' => $data['queue']->traffic_status,
             'active_queue' => $data['active_count'],
@@ -36,9 +35,10 @@ class QueueController extends Controller
     {
         try {
             $ticket = $this->queueService->bookTicket($request->user(), $request->workshop_id);
+
             return ApiResponse::success($ticket, 'Antrian berhasil diambil!', 201);
         } catch (\Throwable $th) {
-            return ApiResponse::error('Gagal mengambil antrian: ' . $th->getMessage(), 400);
+            return ApiResponse::error('Gagal mengambil antrian: '.$th->getMessage(), 400);
         }
     }
 
@@ -46,9 +46,10 @@ class QueueController extends Controller
     public function myTicket(Request $request)
     {
         $ticket = $this->queueService->getActiveTicketForUser($request->user());
-        if (!$ticket) {
+        if (! $ticket) {
             return ApiResponse::error('Anda tidak memiliki tiket aktif hari ini.', 404);
         }
+
         return ApiResponse::success($ticket);
     }
 
@@ -57,9 +58,10 @@ class QueueController extends Controller
     {
         try {
             $ticket = $this->queueService->processTicket($request->user(), $request->ticket_code);
+
             return ApiResponse::success($ticket, 'Mulai mengerjakan servis');
         } catch (\Throwable $th) {
-            return ApiResponse::error('Gagal memproses tiket: ' . $th->getMessage(), 400);
+            return ApiResponse::error('Gagal memproses tiket: '.$th->getMessage(), 400);
         }
     }
 
@@ -67,6 +69,7 @@ class QueueController extends Controller
     public function display(Request $request, $workshopId)
     {
         $displayData = $this->queueService->getDisplayQueue($workshopId);
+
         return ApiResponse::success($displayData);
     }
 

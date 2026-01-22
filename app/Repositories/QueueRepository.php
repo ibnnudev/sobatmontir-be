@@ -6,7 +6,6 @@ use App\Models\Queue;
 use App\Models\QueueTicket;
 use Carbon\Carbon;
 
-
 class QueueRepository
 {
     public function getDisplayTickets($workshopId)
@@ -20,6 +19,7 @@ class QueueRepository
             ->orderBy('created_at', 'asc')
             ->get();
     }
+
     public function getTodayQueue($workshopId)
     {
         return Queue::firstOrCreate(
