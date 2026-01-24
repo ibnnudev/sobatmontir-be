@@ -38,7 +38,7 @@ class QueueController extends Controller
 
             return ApiResponse::success($ticket, 'Antrian berhasil diambil!', 201);
         } catch (\Throwable $th) {
-            return ApiResponse::error('Gagal mengambil antrian: '.$th->getMessage(), 400);
+            return ApiResponse::error('Gagal mengambil antrian: ' . $th->getMessage(), 400);
         }
     }
 
@@ -46,7 +46,7 @@ class QueueController extends Controller
     public function myTicket(Request $request)
     {
         $ticket = $this->queueService->getActiveTicketForUser($request->user());
-        if (! $ticket) {
+        if (!$ticket) {
             return ApiResponse::error('Anda tidak memiliki tiket aktif hari ini.', 404);
         }
 
@@ -61,7 +61,7 @@ class QueueController extends Controller
 
             return ApiResponse::success($ticket, 'Mulai mengerjakan servis');
         } catch (\Throwable $th) {
-            return ApiResponse::error('Gagal memproses tiket: '.$th->getMessage(), 400);
+            return ApiResponse::error('Gagal memproses tiket: ' . $th->getMessage(), 400);
         }
     }
 

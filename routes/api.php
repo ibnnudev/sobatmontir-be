@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // -- QUEUE SYSTEM --
     Route::prefix('queue')->group(function () {
-        // Public / Customer
+        // Customer
         Route::get('/workshop/{workshopId}/status', [QueueController::class, 'checkStatus']);
         Route::post('/book', [QueueController::class, 'book']);
         Route::get('/my-ticket', [QueueController::class, 'myTicket']);
@@ -58,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Mechanic
         Route::post('/serve', [QueueController::class, 'serve']);
 
-        // TV Display (Bisa diakses tanpa login user spesifik, tapi biasanya pake token akun Toko)
+        // TV Display
         Route::get('/workshop/{workshopId}/display', [QueueController::class, 'display']);
     });
 });
