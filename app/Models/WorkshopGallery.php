@@ -6,17 +6,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WorkshopService extends Model
+class WorkshopGallery extends Model
 {
     use HasUuids, HasFactory;
+
     protected $fillable = [
         'workshop_id',
-        'service_code', // contoh: NITROGEN, TAMBAL, CUCI
-        'service_name',
-        'is_24_hours',
+        'image_url',
+        'caption',
     ];
 
-    protected $casts = [
-        'is_24_hours' => 'boolean',
-    ];
+    public function workshop()
+    {
+        return $this->belongsTo(Workshop::class, 'workshop_id');
+    }
 }

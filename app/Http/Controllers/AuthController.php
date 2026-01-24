@@ -7,23 +7,19 @@ use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(AuthLoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Kredensial yang diberikan salah.'],
-            ]);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return ApiResponse::error('Kredensial yang diberikan salah.', 422);
         }
-        if (! $user->is_active) {
-            throw ValidationException::withMessages([
-                'email' => ['Akun Anda telah dinonaktifkan.'],
-            ]);
+        if (!$user->is_active) {
+            return ApiResponse::error('Akun Anda telah dinonaktifkan.', 422);
         }
+
         $user->tokens()->delete();
         $token = $user->createToken('API Token')->plainTextToken;
         $responseData = [
@@ -42,8 +38,8 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // remove token
         $request->user()->currentAccessToken()->delete();
-
         return ApiResponse::success(null, 'Logout berhasil');
     }
 }
