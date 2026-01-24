@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\SosController;
 use App\Http\Controllers\TrackingController;
@@ -45,5 +46,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('tracking')->group(function () {
         Route::post('/update', [TrackingController::class, 'updateLocation']);
         Route::get('/{orderId}', [TrackingController::class, 'trackOrder']);
+    });
+
+    // -- QUEUE SYSTEM --
+    Route::prefix('queue')->group(function () {
+        // Customer
+        Route::get('/workshop/{workshopId}/status', [QueueController::class, 'checkStatus']);
+        Route::post('/book', [QueueController::class, 'book']);
+        Route::get('/my-ticket', [QueueController::class, 'myTicket']);
+
+        // Mechanic
+        Route::post('/serve', [QueueController::class, 'serve']);
+
+        // TV Display
+        Route::get('/workshop/{workshopId}/display', [QueueController::class, 'display']);
     });
 });
