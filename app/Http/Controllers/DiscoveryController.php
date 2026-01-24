@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Http\Requests\DiscoveryReviewRequest;
 use App\Http\Requests\DiscoveryReviewUploadRequest;
-use App\Models\Workshop;
+use App\Http\Responses\ApiResponse;
 use App\Services\DiscoveryService;
 use Illuminate\Http\Request;
 
@@ -27,24 +27,14 @@ class DiscoveryController extends Controller
             'is_24_hours',
             'service_name',
         ]));
-
-        return response()->json([
-            'data' => $results,
-        ]);
+        return ApiResponse::success($results);
     }
 
     // [PUBLIC] Detail Bengkel + Review
     public function show($id)
     {
-        $workshop = Workshop::with([
-            'services',
-            'galleries',
-            'reviews.user:id,name',
-        ])->findOrFail($id);
-
-        return response()->json([
-            'data' => $workshop,
-        ]);
+        $workshop = $this->discoveryService->getWorkshopDetail($id);
+        return ApiResponse::success($workshop);
     }
 
     // [CUSTOMER] Kasih Review
@@ -55,34 +45,24 @@ class DiscoveryController extends Controller
             'rating',
             'comment',
         ]));
-
-        return response()->json([
-            'message' => 'Review berhasil dikirim',
-            'data' => $review,
-        ], 201);
+        return ApiResponse::success($review, 'Review berhasil dikirim', 201);
     }
 
     // [OWNER] Upload Foto Galeri
     public function uploadGallery(DiscoveryReviewUploadRequest $request)
     {
-        // Permission Check (Owner)
         if (!$request->user()->hasRole('owner')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return ApiResponse::error('Unauthorized', 403);
         }
-
         try {
             $gallery = $this->discoveryService->addGalleryImage($request->user(), $request->only([
                 'workshop_id',
                 'image_url',
                 'caption',
             ]));
-
-            return response()->json([
-                'message' => 'Foto berhasil ditambahkan',
-                'data' => $gallery,
-            ], 201);
-        } catch (\Exception $th) {
-            return response()->json(['message' => 'Gagal upload: Workshop tidak ditemukan atau bukan milik Anda'], 400);
+            return ApiResponse::success($gallery, 'Foto berhasil diupload', 201);
+        } catch (\Throwable $th) {
+            return ApiResponse::error('Gagal upload foto: ' . $th->getMessage(), 400);
         }
     }
 }

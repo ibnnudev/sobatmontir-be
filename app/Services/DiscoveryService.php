@@ -9,6 +9,18 @@ use App\Models\WorkshopGallery;
 class DiscoveryService
 {
     /**
+     * Get workshop detail with services, galleries, and reviews
+     */
+    public function getWorkshopDetail($id)
+    {
+        return Workshop::with([
+            'services',
+            'galleries',
+            'reviews.user:id,name',
+        ])->findOrFail($id);
+    }
+
+    /**
      * Cari Bengkel (Filter & Lokasi)
      */
     public function searchWorkshops($filters)
