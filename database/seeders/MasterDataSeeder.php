@@ -52,7 +52,7 @@ class MasterDataSeeder extends Seeder
             'name' => 'Siti Aminah',
             'phone' => '081122334455',
             'email' => 'siti.consumer@gmail.com',
-            'role' => 'CONSUMER',
+            'role' => 'CONSUMER',   
             'password' => 'password',
             'is_active' => true,
         ]);

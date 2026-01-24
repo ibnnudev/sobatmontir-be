@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\QueueController;
@@ -10,7 +11,16 @@ use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login']);
+
+//--- [PUBLIC ROUTES] ---
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+// TV Display
+Route::get('/workshop/{workshopId}/display', [QueueController::class, 'display']);
+
+// --- DISCOVERY & REVIEWS ---
+Route::get('/workshops/search', [DiscoveryController::class, 'search']);
+Route::get('/workshops/{id}', [DiscoveryController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -57,8 +67,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Mechanic
         Route::post('/serve', [QueueController::class, 'serve']);
-
-        // TV Display
-        Route::get('/workshop/{workshopId}/display', [QueueController::class, 'display']);
     });
+
+    // -- DISCOVERY & REVIEWS --
+    Route::post('/review', [DiscoveryController::class, 'storeReview']);
+    Route::post('/gallery/add', action: [DiscoveryController::class, 'storeGallery']);
 });
